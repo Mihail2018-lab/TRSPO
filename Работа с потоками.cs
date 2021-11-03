@@ -1,13 +1,19 @@
 using System;
-using System.Threading;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace Lab2_TRSPO
 {
     class Program
     {
+        static int[,] Array1;
         private class TaskItem
         {
             public int index;
@@ -15,17 +21,15 @@ namespace Lab2_TRSPO
             public int[,] array;
             public int columns;
             public int rows;
-            public StreamWriter sr1;
 
 
-            public TaskItem(int index, bool stop, int[,] array, int rows, StreamWriter writer)
+            public TaskItem(int index, bool stop, int[,] array, int rows)
             {
                 this.index = index;
                 this.stop = stop;
                 this.columns = index;
                 this.array = array;
                 this.rows = rows;
-                this.sr1 = writer;
             }
 
             public TaskItem(int index, bool stop)
@@ -36,9 +40,9 @@ namespace Lab2_TRSPO
 
 
 
-            public static TaskItem WorkItem(int index, int[,] array, int rows, StreamWriter writer)
+            public static TaskItem WorkItem(int index, int[,] array, int rows)
             {
-                return new TaskItem(index, false, array, rows, writer);
+                return new TaskItem(index, false, array, rows);
             }
 
             public static TaskItem StopItem()
@@ -82,16 +86,6 @@ namespace Lab2_TRSPO
                 }
                 sort_array.array[f + 1, sort_array.columns] = key;
             }
-            //Console.Write("Sort array:\n");
-            for (int j = 0; j < sort_array.rows; j++)
-            {
-                sort_array.sr1.Write(sort_array.array[j, sort_array.columns].ToString() + " ");
-                //Console.Write("{0}\t", sort_array.array[j, sort_array.columns]);
-            }
-            //Console.WriteLine();
-            sort_array.sr1.WriteLine();
-            Thread.Sleep(200);
-            //waitHandle.Set();
         }
 
         public static void Main(string[] args)
@@ -107,9 +101,8 @@ namespace Lab2_TRSPO
             int number_thread = Convert.ToInt32(Console.ReadLine());
             Random random_array = new Random();
 
-
+            Array1 = new int[rows, columns];
             StreamWriter sr = new StreamWriter("test1.txt");
-            //StreamWriter sr1 = new StreamWriter("result1.txt");
 
 
             Console.WriteLine("Start array:");
@@ -126,8 +119,10 @@ namespace Lab2_TRSPO
                 //Console.WriteLine();
             }
             sr.Close();
-            StreamWriter sr1 = new StreamWriter("result1.txt");
+            StreamWriter sw = new StreamWriter("result1.txt");
 
+
+            //        Console.WriteLine ("Hello Mono World");
             ConcurrentQueue<TaskItem> queue = new ConcurrentQueue<TaskItem>();
             Thread[] threads = new Thread[number_thread];
 
@@ -141,7 +136,7 @@ namespace Lab2_TRSPO
 
             for (int i = 0; i < columns; i++)
             {
-                queue.Enqueue(TaskItem.WorkItem(i, array, rows, sr1));
+                queue.Enqueue(TaskItem.WorkItem(i, array, rows));
             }
 
             for (int i = 0; i < number_thread; i++)
@@ -154,7 +149,18 @@ namespace Lab2_TRSPO
                 threads[i].Join();
             }
             Console.WriteLine("Join.end:");
-            sr1.Close();
+            for (int i = 0; i < rows; i++)
+            {
+                //Сonsole.Writeline();
+                for (int j = 0; j < columns; j++)
+                {
+                    //Console.Write("{0}\t", array[i, j]);
+                    sw.Write(array[i, j].ToString() + "\t");
+                }
+                sw.WriteLine();
+            }
+            sw.Close();
+
             Console.ReadKey();
         }
     }
