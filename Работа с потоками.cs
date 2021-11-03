@@ -204,7 +204,6 @@ namespace Lab2_TRSPO
 
         private static void ThreadProc(object data)
         {
-            //StreamWriter sr1 = new StreamWriter("result1.txt");
             ConcurrentQueue<TaskItem> queue = (ConcurrentQueue<TaskItem>)data;
             TaskItem task_item;
             while (true)
@@ -284,8 +283,6 @@ namespace Lab2_TRSPO
             sr.Close();
             StreamWriter sr1 = new StreamWriter("result1.txt", true);
 
-
-            //        Console.WriteLine ("Hello Mono World");
             ConcurrentQueue<TaskItem> queue = new ConcurrentQueue<TaskItem>();
             Thread[] threads = new Thread[number_thread];
 
@@ -312,6 +309,7 @@ namespace Lab2_TRSPO
                 threads[i].Join();
             }
             Console.WriteLine("Join.end:");
+            sr1.Close();
             Console.ReadKey();
         }
     }
